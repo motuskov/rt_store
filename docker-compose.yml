@@ -1,8 +1,51 @@
-version: "3"
-
 services:
-  saleor-storefront:
-    container_name: saleor-storefront
+
+  db:
+    container_name: rt_db
+    image: postgres:16-alpine
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_DB: rt_saleor
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready', '-d', 'rt_saleor']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    ports:
+      - 12432:5432
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - .data/db/backups:/var/backups
+
+  saleor:
+    container_name: rt_saleor
+    image: ghcr.io/saleor/saleor:latest
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/rt_saleor
+      ALLOWED_HOSTS: localhost, 127.0.0.1, saleor, dashboard, storefront
+      ALLOWED_CLIENT_HOSTS: localhost, 127.0.0.1, saleor, dashboard, storefront
+    ports:
+      - 12000:8000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  dashboard:
+    container_name: rt_dashboard
+    image: ghcr.io/saleor/saleor-dashboard:latest
+    environment:
+      API_URL: http://localhost:12000/graphql/
+    ports:
+      - 12080:80
+    depends_on:
+      saleor:
+        condition: service_started
+
+  storefront:
+    container_name: rt_storefront
     build:
       dockerfile: Dockerfile
       args:
@@ -10,12 +53,7 @@ services:
         NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL}
     restart: always
     ports:
-      - 3000:3000
-    networks:
-      - saleor_network
+      - 12088:3000
 
-  # Add more containers below (nginx, postgres, etc.)
-
-networks:
-  saleor_network:
-    external: false
+volumes:
+  db_data:
