@@ -1,5 +1,4 @@
 services:
-
   db:
     container_name: rt_db
     image: postgres:16-alpine
@@ -10,7 +9,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready', '-d', 'rt_saleor']
+      test: ["CMD-SHELL", "pg_isready", "-d", "rt_saleor"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -27,6 +26,12 @@ services:
       DATABASE_URL: postgres://postgres:postgres@db:5432/rt_saleor
       ALLOWED_HOSTS: localhost, 127.0.0.1, saleor, dashboard, storefront
       ALLOWED_CLIENT_HOSTS: localhost, 127.0.0.1, saleor, dashboard, storefront
+      AWS_ACCESS_KEY_ID: 95DtxRiuM1mT23jaaXoTgP
+      AWS_SECRET_ACCESS_KEY: VRCcy37w1J9rE7u8ZsG81KxSfnWwZ4FWMfy7w6YkSCf
+      AWS_S3_ENDPOINT_URL: https://hb.bizmrg.com
+      AWS_MEDIA_CUSTOM_DOMAIN: rt_store.hb.bizmrg.com
+      AWS_MEDIA_BUCKET_NAME: rt_store
+      AWS_DEFAULT_ACL: public-read
     ports:
       - 12000:8000
     depends_on:
