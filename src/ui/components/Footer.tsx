@@ -6,6 +6,7 @@ import { ChannelsListDocument, MenuGetBySlugDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 
 export async function Footer({ channel }: { channel: string }) {
+	const staticURL = process.env.STATIC_URL;
 	const footerLinks = await executeGraphQL(MenuGetBySlugDocument, {
 		variables: { slug: "footer", channel },
 		revalidate: 60 * 60 * 24,
@@ -17,7 +18,7 @@ export async function Footer({ channel }: { channel: string }) {
 					// and use app token instead
 					Authorization: `Bearer ${process.env.SALEOR_APP_TOKEN}`,
 				},
-		  })
+			})
 		: null;
 	const currentYear = new Date().getFullYear();
 
@@ -89,7 +90,12 @@ export async function Footer({ channel }: { channel: string }) {
 							Saleor
 						</Link>{" "}
 						<Link href={"https://github.com/saleor/saleor"} target={"_blank"} className={"opacity-30"}>
-							<Image alt="Saleor github repository" height={20} width={20} src={"/github-mark.svg"} />
+							<Image
+								alt="Saleor github repository"
+								height={20}
+								width={20}
+								src={`${staticURL}/github-mark.svg`}
+							/>
 						</Link>
 					</p>
 				</div>
